@@ -3030,81 +3030,146 @@ document.getElementById('csv-export').addEventListener('click', () => {
 /* ===================== MARKDOWN PREVIEW ===================== */
 let mdCurrentFile = null;
 
+/* ---------- inline renderer ---------- */
+function mdInline(s) {
+  // escape HTML first (except in code spans handled below)
+  return s
+    .replace(/`([^`]+)`/g, (_,c) => `<code>${c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code>`)
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%">')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/~~(.+?)~~/g, '<del>$1</del>');
+}
+
+/* ---------- block-level parser (line-by-line state machine) ---------- */
+function mdParse(src) {
+  const lines = src.split('\n');
+  const blocks = []; // [{type, content, ...}]
+  let i = 0;
+
+  while (i < lines.length) {
+    const raw = lines[i];
+    const line = raw;
+
+    // blank line — ends any implicit para
+    if (!line.trim()) { blocks.push({type:'blank'}); i++; continue; }
+
+    // fenced code block
+    if (/^```/.test(line)) {
+      const lang = line.slice(3).trim();
+      let code = '';
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i])) { code += lines[i] + '\n'; i++; }
+      i++; // skip closing ```
+      blocks.push({type:'code', lang, code});
+      continue;
+    }
+
+    // heading
+    const hm = line.match(/^(#{1,6})\s+(.+)$/);
+    if (hm) { blocks.push({type:'heading', level:hm[1].length, text:hm[2]}); i++; continue; }
+
+    // hr
+    if (/^(\-{3,}|\*{3,}|_{3,})\s*$/.test(line)) { blocks.push({type:'hr'}); i++; continue; }
+
+    // blockquote
+    if (/^>\s?/.test(line)) {
+      let bq = '';
+      while (i < lines.length && /^>\s?/.test(lines[i])) { bq += lines[i].replace(/^>\s?/,'') + '\n'; i++; }
+      blocks.push({type:'blockquote', content: bq});
+      continue;
+    }
+
+    // table (must have separator on next line)
+    if (/^\|.+\|$/.test(line) && i+1 < lines.length && /^\|[\s\-|:]+\|$/.test(lines[i+1])) {
+      const headers = line.slice(1,-1).split('|').map(c=>c.trim());
+      i += 2; // skip header + separator
+      const rows = [];
+      while (i < lines.length && /^\|.+\|$/.test(lines[i])) {
+        rows.push(lines[i].slice(1,-1).split('|').map(c=>c.trim())); i++;
+      }
+      blocks.push({type:'table', headers, rows});
+      continue;
+    }
+
+    // unordered list
+    if (/^[\*\-]\s+/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^[\*\-]\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^[\*\-]\s+/,'')); i++;
+      }
+      blocks.push({type:'ul', items});
+      continue;
+    }
+
+    // ordered list
+    if (/^\d+\.\s+/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^\d+\.\s+/,'')); i++;
+      }
+      blocks.push({type:'ol', items});
+      continue;
+    }
+
+    // paragraph — accumulate until blank line OR a block-level marker
+    let para = '';
+    while (i < lines.length) {
+      const l = lines[i];
+      // stop at blank or block-level starters
+      if (!l.trim()) break;
+      if (/^(#{1,6}\s|```|>\s?|[\*\-]\s|\d+\.\s|\|.*\|$|(\-{3,}|\*{3,}|_{3,})\s*$)/.test(l)) break;
+      para += (para ? ' ' : '') + l.trim();
+      i++;
+    }
+    if (para) blocks.push({type:'para', text:para});
+  }
+  return blocks;
+}
+
+function mdBlocksToHTML(blocks) {
+  let html = '';
+  for (const b of blocks) {
+    if (b.type === 'blank')   { html += ''; continue; }
+    if (b.type === 'hr')      { html += '<hr>'; continue; }
+    if (b.type === 'heading') { html += `<h${b.level}>${mdInline(b.text)}</h${b.level}>`; continue; }
+    if (b.type === 'code')    {
+      const safe = b.code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      html += `<pre><code class="lang-${b.lang||''}">${safe}</code></pre>`; continue;
+    }
+    if (b.type === 'blockquote') {
+      const inner = mdBlocksToHTML(mdParse(b.content));
+      html += `<blockquote>${inner}</blockquote>`; continue;
+    }
+    if (b.type === 'para')    { html += `<p>${mdInline(b.text)}</p>`; continue; }
+    if (b.type === 'ul') {
+      html += '<ul>' + b.items.map(it=>`<li>${mdInline(it)}</li>`).join('') + '</ul>'; continue;
+    }
+    if (b.type === 'ol') {
+      html += '<ol>' + b.items.map(it=>`<li>${mdInline(it)}</li>`).join('') + '</ol>'; continue;
+    }
+    if (b.type === 'table') {
+      const ths = b.headers.map(h=>`<th>${mdInline(h)}</th>`).join('');
+      const trs = b.rows.map(r=>'<tr>'+r.map(c=>`<td>${mdInline(c)}</td>`).join('')+'</tr>').join('');
+      html += `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`; continue;
+    }
+  }
+  return html;
+}
+
 function mdRender() {
   const src = document.getElementById('md-input').value;
   const preview = document.getElementById('md-preview');
 
-  // --- stats ---
+  // stats
   const words = src.trim() ? src.trim().split(/\s+/).length : 0;
   document.getElementById('md-words').textContent = words;
   document.getElementById('md-lines').textContent = src ? src.split('\n').length : 0;
   document.getElementById('md-chars').textContent = src.length;
 
-  // --- parse tables first (before other transforms touch |) ---
-  let lines = src.split('\n');
-  let out = [];
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-    // detect table: line starts and ends with |
-    if (/^\|.+\|$/.test(line)) {
-      let tableLines = [line];
-      // skip separator row (---|---|)
-      if (i+1 < lines.length && /^\|[\s\-\|:]+\|$/.test(lines[i+1])) {
-        i += 2; // skip header + separator
-        while (i < lines.length && /^\|.+\|$/.test(lines[i])) {
-          tableLines.push(lines[i]); i++;
-        }
-        const [hdr, ...rows] = tableLines;
-        const ths = hdr.slice(1,-1).split('|').map(c=>`<th>${mdInline(c.trim())}</th>`).join('');
-        const trs = rows.map(r=>'<tr>'+r.slice(1,-1).split('|').map(c=>`<td>${mdInline(c.trim())}</td>`).join('')+'</tr>').join('');
-        out.push(`<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`);
-      } else { out.push(mdInline(line)); i++; }
-    } else { out.push(line); i++; }
-  }
-  let html = out.join('\n');
-
-  // --- block elements ---
-  html = html
-    // fenced code blocks
-    .replace(/```(\w*)\n?([\s\S]*?)```/gm, (_,lang,code) =>
-      `<pre><code class="lang-${lang}">${code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre>`)
-    // headings
-    .replace(/^#{6}\s+(.+)$/gm,'<h6>$1</h6>')
-    .replace(/^#{5}\s+(.+)$/gm,'<h5>$1</h5>')
-    .replace(/^#{4}\s+(.+)$/gm,'<h4>$1</h4>')
-    .replace(/^#{3}\s+(.+)$/gm,'<h3>$1</h3>')
-    .replace(/^#{2}\s+(.+)$/gm,'<h2>$1</h2>')
-    .replace(/^#\s+(.+)$/gm,'<h1>$1</h1>')
-    // hr
-    .replace(/^(\-{3,}|\*{3,}|_{3,})$/gm,'<hr>')
-    // blockquote
-    .replace(/^>\s?(.*)$/gm,'<blockquote>$1</blockquote>')
-    // unordered lists
-    .replace(/^[\*\-]\s+(.+)$/gm,'<li>$1</li>')
-    // ordered lists
-    .replace(/^\d+\.\s+(.+)$/gm,'<oli>$1</oli>')
-    // wrap consecutive <li>
-    .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>'+m+'</ul>')
-    // wrap consecutive <oli>
-    .replace(/(<oli>.*<\/oli>\n?)+/g, m => '<ol>'+m.replace(/<\/?oli>/g, s=>s.replace('oli','li'))+'</ol>')
-    // inline elements (on non-code lines)
-    .replace(/(?<!<pre[\s\S]*?)(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|~~[^~]+~~|\[.+?\]\(.+?\)|!\[.*?\]\(.+?\))/g, mdInlineReplace)
-    // paragraphs
-    .replace(/\n\n+/g, '</p><p>')
-    .replace(/^(?!<[a-z])(.+)$/gm, '$1');
-
-  preview.innerHTML = '<p>' + html + '</p>';
-}
-
-function mdInline(s) {
-  return s
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,'<em>$1</em>')
-    .replace(/~~(.+?)~~/g,'<del>$1</del>')
-    .replace(/`([^`]+)`/g,'<code>$1</code>')
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" style="max-width:100%">')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+  preview.innerHTML = mdBlocksToHTML(mdParse(src));
 }
 
 function mdInlineReplace(match) { return mdInline(match); }
