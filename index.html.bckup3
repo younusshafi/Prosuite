@@ -2492,15 +2492,8 @@ document.getElementById('wm-btn').addEventListener('click', async () => {
     doc.getPages().forEach((page, i) => {
       setP('wm', 5 + 85*(i+1)/doc.getPageCount(), `Page ${i+1}…`);
       const { width, height } = page.getSize();
-      // Measure text so we can truly center it on the page diagonal
-      const textWidth  = helveticaFont.widthOfTextAtSize(text, size);
-      const textHeight = helveticaFont.heightAtSize(size);
-      const angleRad   = angleDeg * Math.PI / 180;
-      // Offset from center so the midpoint of the text string lands at page center
-      const cx = width  / 2 - (textWidth  / 2) * Math.cos(angleRad) + (textHeight / 2) * Math.sin(angleRad);
-      const cy = height / 2 - (textWidth  / 2) * Math.sin(angleRad) - (textHeight / 2) * Math.cos(angleRad);
       page.drawText(text, {
-        x: cx, y: cy,
+        x: width/2, y: height/2,
         size: size,
         font: helveticaFont,
         color: rgb(r,g,b),
