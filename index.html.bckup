@@ -761,6 +761,337 @@ input[type="checkbox"] { accent-color: var(--teal); }
 .tc-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
 
 .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 12px; }
+
+/* ============================================================
+   MISSION CONTROL
+   ============================================================ */
+.mc-view-btn {
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all 0.2s;
+}
+.mc-view-btn:hover { color: var(--text); background: var(--surface3); }
+.mc-view-btn.active { color: var(--text); background: var(--surface3); }
+
+/* Project column */
+.mc-col {
+  min-width: 280px;
+  max-width: 280px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 280px);
+}
+.mc-col-head {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.mc-col-accent { width: 4px; height: 28px; border-radius: 3px; flex-shrink: 0; }
+.mc-col-name { font-weight: 700; font-size: 13px; flex: 1; }
+.mc-col-count { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.mc-col-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mc-col-body::-webkit-scrollbar { width: 3px; }
+.mc-col-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+/* Task card */
+.mc-task {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  border-left: 3px solid transparent;
+}
+.mc-task:hover { border-color: var(--border2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+.mc-task.done { opacity: 0.45; }
+.mc-task.done .mc-task-title { text-decoration: line-through; color: var(--muted); }
+
+.mc-task-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+.mc-task-check {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--border2);
+  flex-shrink: 0; margin-top: 1px;
+  cursor: pointer; transition: all 0.15s;
+  display: grid; place-items: center;
+}
+.mc-task-check:hover { border-color: var(--green); }
+.mc-task-check.checked { background: var(--green); border-color: var(--green); }
+.mc-task-check.checked::after { content: '✓'; font-size: 9px; color: #0b0d12; font-weight: 900; }
+
+.mc-task-title { font-size: 13px; font-weight: 500; flex: 1; line-height: 1.4; }
+.mc-task-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.mc-task-due { font-size: 10px; font-family: var(--mono); padding: 2px 7px; border-radius: 999px; background: var(--surface3); color: var(--muted); border: 1px solid var(--border); }
+.mc-task-due.overdue { background: rgba(232,77,106,0.15); color: var(--red2); border-color: rgba(232,77,106,0.3); }
+.mc-task-due.today-due { background: rgba(245,166,35,0.15); color: var(--amber2); border-color: rgba(245,166,35,0.3); }
+.mc-task-notes { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+/* Priority colors */
+.mc-task[data-pri="urgent-important"] { border-left-color: var(--red); }
+.mc-task[data-pri="important"]        { border-left-color: var(--amber); }
+.mc-task[data-pri="urgent"]           { border-left-color: var(--violet); }
+.mc-task[data-pri="someday"]          { border-left-color: var(--dim); }
+
+/* Add task area */
+.mc-add-area { padding: 8px 10px; border-top: 1px solid var(--border); flex-shrink: 0; }
+.mc-add-input {
+  width: 100%; background: var(--surface3);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 7px 10px; font-size: 12px; color: var(--text);
+  font-family: var(--sans);
+}
+.mc-add-input:focus { outline: none; border-color: var(--green); }
+
+/* Timeline strip */
+.mc-day-chip {
+  flex-shrink: 0; min-width: 100px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 10px;
+}
+.mc-day-chip.today-chip { border-color: var(--amber); background: rgba(245,166,35,0.06); }
+.mc-day-chip .dc-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.mc-day-chip .dc-tasks { display: flex; flex-direction: column; gap: 3px; }
+.mc-day-chip .dc-task { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 2px 5px; border-radius: 3px; background: var(--surface3); color: var(--text); }
+
+/* Color picker swatches */
+.mc-color-pick {
+  width: 28px; height: 28px; border-radius: 50%;
+  cursor: pointer; border: 2px solid transparent;
+  transition: transform 0.15s;
+}
+.mc-color-pick:hover { transform: scale(1.15); }
+.mc-color-pick.selected { border-color: white; box-shadow: 0 0 0 2px var(--bg); }
+
+/* List view rows */
+.mc-list-row {
+  display: grid;
+  grid-template-columns: 20px 1fr 110px 90px 80px 32px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+.mc-list-row:hover { border-color: var(--border2); }
+.mc-list-row[data-pri="urgent-important"] { border-left-color: var(--red); }
+.mc-list-row[data-pri="important"]        { border-left-color: var(--amber); }
+.mc-list-row[data-pri="urgent"]           { border-left-color: var(--violet); }
+.mc-list-row[data-pri="someday"]          { border-left-color: var(--dim); }
+.mc-list-row.done .mc-lr-title { text-decoration: line-through; color: var(--muted); opacity: 0.6; }
+
+.mc-lr-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-lr-proj  { font-size: 11px; font-family: var(--mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-lr-due   { font-size: 11px; font-family: var(--mono); color: var(--muted); }
+.mc-lr-pri   { font-size: 11px; }
+.mc-lr-edit  { background: none; border: none; color: var(--muted); cursor: pointer; border-radius: 4px; padding: 3px 6px; font-size: 13px; }
+.mc-lr-edit:hover { color: var(--text); background: var(--surface2); }
+
+/* Empty states */
+.mc-empty { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 12px; }
+.mc-empty .mc-empty-icon { font-size: 28px; margin-bottom: 8px; }
+
+
+/* ============================================================
+   WHATSAPP FORMATTER
+   ============================================================ */
+.wa-tb-btn {
+  padding: 6px 11px;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all 0.15s;
+  line-height: 1;
+}
+.wa-tb-btn:hover { background: var(--border); border-color: var(--amber); color: var(--amber); }
+
+.wa-view-tab {
+  padding: 5px 14px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: var(--sans);
+  transition: all 0.15s;
+}
+.wa-view-tab.active { background: var(--surface3); color: var(--text); }
+
+
+/* WA toolbar buttons */
+.wa-tb-btn {
+  padding: 7px 11px;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: all 0.15s;
+  min-width: 36px;
+  text-align: center;
+}
+.wa-tb-btn:hover { background: var(--border2); border-color: var(--border2); }
+.wa-tb-btn:active { transform: scale(0.93); }
+
+/* WA view tabs */
+.wa-view-tab {
+  padding: 6px 16px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.wa-view-tab.active { background: var(--surface3); color: var(--text); }
+.wa-view-tab:hover { color: var(--text); }
+
+/* WhatsApp preview styles — mimic WA rendering */
+#wa-preview strong, #wa-preview b { font-weight: 700; }
+#wa-preview em, #wa-preview i { font-style: italic; }
+#wa-preview s, #wa-preview del { text-decoration: line-through; }
+#wa-preview code { font-family: var(--mono); font-size: 12px; }
+#wa-preview blockquote {
+  border-left: 3px solid var(--green);
+  padding-left: 12px;
+  margin: 4px 0;
+  color: var(--muted);
+}
+#wa-preview ul { padding-left: 18px; }
+#wa-preview li { margin: 2px 0; }
+
+/* contenteditable placeholder */
+#wa-input:empty:before {
+  content: attr(data-placeholder);
+  color: var(--dim);
+  pointer-events: none;
+}
+
+/* copy flash */
+@keyframes copyFlash {
+  0%   { background: rgba(46,204,113,0.3); }
+  100% { background: var(--surface); }
+}
+.copy-flash { animation: copyFlash 0.5s ease; }
+
+/* Mobile nav bar — shown only on small screens */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border2);
+  padding: 8px 12px 12px;
+  z-index: 200;
+  flex-direction: row;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mob-nav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 12px; border-radius: 8px; border: 1px solid transparent;
+  background: var(--surface2); color: var(--muted); cursor: pointer;
+  font-size: 10px; font-weight: 600; font-family: var(--sans);
+  transition: all 0.2s; white-space: nowrap;
+}
+.mob-nav-btn .mni { font-size: 18px; }
+.mob-nav-btn.active { background: var(--surface3); border-color: var(--border2); color: var(--text); }
+
+/* Sticky copy button for mobile WA */
+.wa-sticky-copy {
+  display: none;
+  position: fixed;
+  bottom: 74px; right: 16px;
+  z-index: 300;
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#2ecc71,#56d98a);
+  border: none; cursor: pointer;
+  font-size: 24px;
+  box-shadow: 0 4px 20px rgba(46,204,113,0.5);
+  transition: transform 0.15s;
+  align-items: center; justify-content: center;
+}
+.wa-sticky-copy:active { transform: scale(0.92); }
+
+/* WA toolbar bigger tap targets on mobile */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .mobile-nav { display: flex; }
+  .main-content { padding: 14px 12px 100px; }
+  .wa-sticky-copy { display: flex; }
+
+  .wa-tb-btn {
+    padding: 10px 13px;
+    font-size: 15px;
+    min-width: 42px;
+    min-height: 42px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  #wa-input {
+    min-height: 160px !important;
+    font-size: 15px !important;
+  }
+
+  #wa-preview {
+    font-size: 15px !important;
+    line-height: 1.9 !important;
+  }
+
+  .wa-view-tab {
+    padding: 8px 18px;
+    font-size: 13px;
+  }
+
+  /* Make copy button in card bigger on mobile */
+  .btn-green {
+    padding: 10px 20px !important;
+    font-size: 14px !important;
+  }
+
+  /* Stack cards vertically nicely */
+  #wa-shell { gap: 12px; }
+
+  /* Page header compact on mobile */
+  .page-header { margin-bottom: 14px; padding-bottom: 12px; }
+  .page-title { font-size: 18px; }
+}
 </style>
 </head>
 <body>
@@ -842,6 +1173,15 @@ input[type="checkbox"] { accent-color: var(--teal); }
       </div>
       <div class="nav-item" data-page="regextester" onclick="navigate('regextester')">
         <div class="nav-dot" style="background:var(--teal)"></div> Regex Tester
+      </div>
+
+      <div class="nav-item" data-page="waformat" onclick="navigate('waformat')">
+        <div class="nav-dot" style="background:var(--green)"></div> WhatsApp Format
+      </div>
+
+      <div class="sidebar-section">Productivity</div>
+      <div class="nav-item" data-page="missioncontrol" onclick="navigate('missioncontrol')">
+        <div class="nav-dot" style="background:var(--green)"></div> Mission Control
       </div>
 
       <div class="sidebar-section">Security</div>
@@ -962,6 +1302,21 @@ input[type="checkbox"] { accent-color: var(--teal); }
             <div class="tc-icon">⚡</div>
             <div class="tc-name">Regex Tester</div>
             <div class="tc-desc">Test regex patterns against text with live match highlighting</div>
+          </div>
+          <div class="tool-card-home" onclick="navigate('waformat')">
+            <div class="tc-icon">💬</div>
+            <div class="tc-name">WhatsApp Format</div>
+            <div class="tc-desc">Convert rich text to WhatsApp markdown — bold, italic, lists, quotes, mono. One-tap copy.</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="section-title">✅ Productivity</div>
+        <div class="tool-grid-home">
+          <div class="tool-card-home" onclick="navigate('missioncontrol')">
+            <div class="tc-icon">🎯</div>
+            <div class="tc-name">Mission Control</div>
+            <div class="tc-desc">Project-lane task board with priority, due dates, Today view and timeline — all local</div>
           </div>
         </div>
 
@@ -1818,9 +2173,240 @@ input[type="checkbox"] { accent-color: var(--teal); }
         </div>
       </div>
 
+
+      <!-- ================================================ MISSION CONTROL -->
+      <div id="page-missioncontrol" class="tool-page">
+        <div class="page-header" style="padding-bottom:14px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+              <div class="page-title">🎯 Mission Control</div>
+              <div class="page-desc">Your projects. Your priorities. One view.</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <!-- View switcher -->
+              <div style="display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+                <button class="mc-view-btn active" data-view="board" onclick="mcSetView('board')">🗂 Board</button>
+                <button class="mc-view-btn" data-view="today" onclick="mcSetView('today')">📅 Today</button>
+                <button class="mc-view-btn" data-view="timeline" onclick="mcSetView('timeline')">📆 Timeline</button>
+                <button class="mc-view-btn" data-view="list" onclick="mcSetView('list')">📋 List</button>
+              </div>
+              <button class="btn btn-green" onclick="mcOpenProjectModal()">+ Project</button>
+              <button class="btn btn-ghost" onclick="mcExport()" title="Export JSON backup">⬇</button>
+              <label class="btn btn-ghost" title="Import JSON backup" style="cursor:pointer">⬆ <input type="file" accept=".json" style="display:none" onchange="mcImport(event)"></label>
+            </div>
+          </div>
+
+          <!-- Command bar -->
+          <div style="margin-top:14px;position:relative">
+            <input type="text" id="mc-cmd" placeholder="⌨  Quick add — e.g.  Call client re proposal  #Work  !urgent  due:fri" style="width:100%;padding:11px 16px;font-size:13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:var(--sans)" onkeydown="mcCmdKey(event)" oninput="mcCmdHint(this)">
+            <div id="mc-cmd-hint" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--dim);pointer-events:none;font-family:var(--mono)">Enter to add</div>
+          </div>
+
+          <!-- Week timeline strip -->
+          <div id="mc-timeline-strip" style="margin-top:12px;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px"></div>
+        </div>
+
+        <!-- BOARD VIEW -->
+        <div id="mc-view-board" class="mc-view">
+          <div id="mc-board" style="display:flex;gap:16px;overflow-x:auto;padding-bottom:16px;min-height:500px;align-items:flex-start"></div>
+        </div>
+
+        <!-- TODAY VIEW -->
+        <div id="mc-view-today" class="mc-view" style="display:none">
+          <div class="card" style="max-width:680px">
+            <div class="card-head"><span>🔴 Today's Focus</span><span id="mc-today-count" class="pill pill-red">0 tasks</span></div>
+            <div class="card-body"><div id="mc-today-list" style="display:flex;flex-direction:column;gap:8px"></div></div>
+          </div>
+          <div class="card" style="max-width:680px;margin-top:16px">
+            <div class="card-head"><span>🟡 Due This Week</span></div>
+            <div class="card-body"><div id="mc-week-list" style="display:flex;flex-direction:column;gap:8px"></div></div>
+          </div>
+        </div>
+
+        <!-- TIMELINE VIEW -->
+        <div id="mc-view-timeline" class="mc-view" style="display:none">
+          <div id="mc-timeline-full" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+
+        <!-- LIST VIEW -->
+        <div id="mc-view-list" class="mc-view" style="display:none">
+          <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+            <input type="text" id="mc-list-filter" placeholder="Filter tasks…" style="flex:1;min-width:160px;padding:8px 12px;font-size:13px" oninput="mcRenderList()">
+            <select id="mc-list-proj" style="font-size:12px;padding:7px 10px" onchange="mcRenderList()"><option value="">All Projects</option></select>
+            <select id="mc-list-pri" style="font-size:12px;padding:7px 10px" onchange="mcRenderList()">
+              <option value="">All Priorities</option>
+              <option value="urgent-important">🔴 Urgent + Important</option>
+              <option value="important">🟡 Important</option>
+              <option value="urgent">🟠 Urgent</option>
+              <option value="someday">⚪ Someday</option>
+            </select>
+            <select id="mc-list-sort" style="font-size:12px;padding:7px 10px" onchange="mcRenderList()">
+              <option value="due">Sort: Due Date</option>
+              <option value="priority">Sort: Priority</option>
+              <option value="created">Sort: Created</option>
+              <option value="alpha">Sort: A–Z</option>
+            </select>
+          </div>
+          <div id="mc-list-body" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
+
+
+      <!-- ================================================ WHATSAPP FORMAT -->
+      <div id="page-waformat" class="tool-page">
+        <div class="page-header">
+          <div class="page-title">💬 WhatsApp Formatter</div>
+          <div class="page-desc">Paste or type rich text — converts to WhatsApp markdown. Optimised for mobile copy-paste.</div>
+        </div>
+        <div id="wa-shell" style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="card-head">
+              <span>✏️ Input</span>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="waClear()">Clear</button>
+                <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="waPasteClipboard()">📋 Paste</button>
+              </div>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div id="wa-toolbar" style="display:flex;gap:4px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2)">
+                <button class="wa-tb-btn" onclick="waFmt('bold')" title="Bold"><strong>B</strong></button>
+                <button class="wa-tb-btn" onclick="waFmt('italic')" title="Italic"><em>I</em></button>
+                <button class="wa-tb-btn" onclick="waFmt('strikeThrough')" title="Strike"><s>S</s></button>
+                <button class="wa-tb-btn" onclick="waFmtMono()" title="Monospace" style="font-family:var(--mono)">&#96;M&#96;</button>
+                <div style="width:1px;background:var(--border);margin:2px 4px"></div>
+                <button class="wa-tb-btn" onclick="waFmtQuote()" title="Quote">&#10077;</button>
+                <button class="wa-tb-btn" onclick="waFmtList('ul')" title="Bullet list">&#8226; List</button>
+                <button class="wa-tb-btn" onclick="waFmtList('ol')" title="Numbered list">1. List</button>
+                <div style="width:1px;background:var(--border);margin:2px 4px"></div>
+                <button class="wa-tb-btn" onclick="waFmt('removeFormat')" title="Clear formatting" style="color:var(--red)">&#10005; Clear</button>
+              </div>
+              <div id="wa-input" contenteditable="true" spellcheck="true"
+                data-placeholder="Paste or type here — bold, italic, lists, headings all convert automatically…"
+                style="min-height:200px;padding:14px 16px;outline:none;font-size:14px;line-height:1.75;color:var(--text);background:var(--surface)"
+                oninput="waConvert()" onpaste="setTimeout(waConvert,10)"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:2px 0">
+            <label style="font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center"><input type="checkbox" id="wa-opt-bullets" checked onchange="waConvert()"> Bullet lists</label>
+            <label style="font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center"><input type="checkbox" id="wa-opt-numbers" checked onchange="waConvert()"> Numbered lists</label>
+            <label style="font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center"><input type="checkbox" id="wa-opt-dividers" checked onchange="waConvert()"> Section dividers</label>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <span>💬 WhatsApp Output</span>
+              <div style="display:flex;gap:8px;align-items:center">
+                <span id="wa-char-count" style="font-size:11px;color:var(--muted);font-family:var(--mono)">0 chars</span>
+                <button class="btn btn-green" onclick="waCopyOutput()" style="padding:10px 22px;font-size:14px;font-weight:700;letter-spacing:0.3px">📋 Copy to WhatsApp</button>
+              </div>
+            </div>
+            <div class="card-body" style="padding:0">
+              <div style="padding:8px 14px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;gap:8px">
+                <button class="wa-view-tab active" id="wa-tab-preview" onclick="waTab('preview')">Preview</button>
+                <button class="wa-view-tab" id="wa-tab-raw" onclick="waTab('raw')">Raw text</button>
+              </div>
+              <div id="wa-preview" style="padding:14px 16px;min-height:160px;font-size:14px;line-height:1.8;background:var(--surface);word-break:break-word"></div>
+              <textarea id="wa-output" style="display:none;width:100%;min-height:200px;padding:14px 16px;background:var(--surface);border:none;outline:none;resize:none;font-family:var(--mono);font-size:12px;color:var(--teal);line-height:1.8" readonly></textarea>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span>&#9889; Quick Templates</span></div>
+            <div class="card-body">
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn" style="font-size:12px" onclick="waTemplate('update')">&#128226; Status Update</button>
+                <button class="btn" style="font-size:12px" onclick="waTemplate('meeting')">&#128197; Meeting Note</button>
+                <button class="btn" style="font-size:12px" onclick="waTemplate('action')">&#9989; Action Items</button>
+                <button class="btn" style="font-size:12px" onclick="waTemplate('announcement')">&#127881; Announcement</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 </div>
+  <!-- MISSION CONTROL MODALS -->
+  <div id="mc-task-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:28px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto">
+      <div style="font-size:16px;font-weight:700;margin-bottom:20px" id="mc-modal-title">Edit Task</div>
+      <input type="hidden" id="mc-edit-id">
+      <div class="field"><label>Task Title</label><input type="text" id="mc-edit-title" placeholder="What needs to be done?"></div>
+      <div class="field"><label>Notes</label><textarea id="mc-edit-notes" placeholder="Any extra context…" style="min-height:80px"></textarea></div>
+      <div class="grid-2" style="gap:12px">
+        <div class="field"><label>Project</label>
+          <select id="mc-edit-proj"></select>
+        </div>
+        <div class="field"><label>Priority</label>
+          <select id="mc-edit-pri">
+            <option value="urgent-important">🔴 Urgent + Important</option>
+            <option value="important">🟡 Important</option>
+            <option value="urgent">🟠 Urgent</option>
+            <option value="someday">⚪ Someday</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Due Date</label><input type="date" id="mc-edit-due"></div>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn btn-green" onclick="mcSaveTask()">💾 Save</button>
+        <button class="btn btn-ghost" onclick="mcCloseModal('mc-task-modal')">Cancel</button>
+        <button class="btn btn-ghost" style="margin-left:auto;color:var(--red)" id="mc-delete-btn" onclick="mcDeleteTask()">🗑 Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mc-proj-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:28px;width:420px;max-width:95vw">
+      <div style="font-size:16px;font-weight:700;margin-bottom:20px">New Project</div>
+      <div class="field"><label>Project Name</label><input type="text" id="mc-proj-name" placeholder="e.g. Work, Health, Side Project…"></div>
+      <div class="field"><label>Color</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="mc-proj-colors">
+          <div class="mc-color-pick" data-color="#e84d6a" style="background:#e84d6a" onclick="mcPickColor(this)"></div>
+          <div class="mc-color-pick" data-color="#4ecdc4" style="background:#4ecdc4" onclick="mcPickColor(this)"></div>
+          <div class="mc-color-pick" data-color="#f5a623" style="background:#f5a623" onclick="mcPickColor(this)"></div>
+          <div class="mc-color-pick" data-color="#9b6dff" style="background:#9b6dff" onclick="mcPickColor(this)"></div>
+          <div class="mc-color-pick" data-color="#2ecc71" style="background:#2ecc71" onclick="mcPickColor(this)"></div>
+          <div class="mc-color-pick" data-color="#3498db" style="background:#3498db" onclick="mcPickColor(this)"></div>
+          <div class="mc-color-pick" data-color="#e67e22" style="background:#e67e22" onclick="mcPickColor(this)"></div>
+          <div class="mc-color-pick" data-color="#e91e8c" style="background:#e91e8c" onclick="mcPickColor(this)"></div>
+        </div>
+      </div>
+      <div class="field"><label>Icon (emoji)</label><input type="text" id="mc-proj-icon" placeholder="🚀" maxlength="4" style="width:80px"></div>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn btn-green" onclick="mcSaveProject()">+ Create Project</button>
+        <button class="btn btn-ghost" onclick="mcCloseModal('mc-proj-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-nav" id="mobile-nav">
+    <button class="mob-nav-btn active" data-page="home" onclick="navigate('home')">
+      <span class="mni">🏠</span>Home
+    </button>
+    <button class="mob-nav-btn" data-page="waformat" onclick="navigate('waformat')">
+      <span class="mni">💬</span>WhatsApp
+    </button>
+    <button class="mob-nav-btn" data-page="missioncontrol" onclick="navigate('missioncontrol')">
+      <span class="mni">🎯</span>Tasks
+    </button>
+    <button class="mob-nav-btn" data-page="textshield" onclick="navigate('textshield')">
+      <span class="mni">⛨</span>Shield
+    </button>
+    <button class="mob-nav-btn" data-page="merge" onclick="navigate('merge')">
+      <span class="mni">📄</span>PDF
+    </button>
+    <button class="mob-nav-btn" data-page="texttools" onclick="navigate('texttools')">
+      <span class="mni">🔤</span>Text
+    </button>
+  </nav>
+
+  <!-- STICKY COPY BUTTON (WhatsApp, mobile only) -->
+  <button class="wa-sticky-copy" id="wa-sticky-btn" onclick="waCopyOutput()" title="Copy to WhatsApp">
+    📋
+  </button>
 
 <div class="toast" id="toast"></div>
 
@@ -1837,6 +2423,17 @@ function navigate(page) {
   document.getElementById('page-' + page).classList.add('active');
   const nav = document.querySelector(`.nav-item[data-page="${page}"]`);
   if (nav) nav.classList.add('active');
+  // show/hide sticky WA copy button
+  const stickyBtn = document.getElementById('wa-sticky-btn');
+  if (stickyBtn) stickyBtn.style.display = (page === 'waformat') ? 'flex' : 'none';
+  // sync mobile nav highlight
+  document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+  window.scrollTo(0, 0);
+}
+
+function mobActive(btn) {
+  document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
 /* ===================== UTILITIES ===================== */
@@ -2193,8 +2790,15 @@ document.getElementById('wm-btn').addEventListener('click', async () => {
     doc.getPages().forEach((page, i) => {
       setP('wm', 5 + 85*(i+1)/doc.getPageCount(), `Page ${i+1}…`);
       const { width, height } = page.getSize();
+      // Measure text so we can truly center it on the page diagonal
+      const textWidth  = helveticaFont.widthOfTextAtSize(text, size);
+      const textHeight = helveticaFont.heightAtSize(size);
+      const angleRad   = angleDeg * Math.PI / 180;
+      // Offset from center so the midpoint of the text string lands at page center
+      const cx = width  / 2 - (textWidth  / 2) * Math.cos(angleRad) + (textHeight / 2) * Math.sin(angleRad);
+      const cy = height / 2 - (textWidth  / 2) * Math.sin(angleRad) - (textHeight / 2) * Math.cos(angleRad);
       page.drawText(text, {
-        x: width/2, y: height/2,
+        x: cx, y: cy,
         size: size,
         font: helveticaFont,
         color: rgb(r,g,b),
@@ -2522,9 +3126,9 @@ function tt(action) {
 /* ===================== TEXT SHIELD ===================== */
 const SH_KEY = 'prosuite_shield_dict';
 const SH_DEFAULT = [
-  { original:'Ooredoo', replacement:'Oxredox' },
-  { original:'ooredoo', replacement:'oxredox' },
-  { original:'OOREDOO', replacement:'OXREDOX' },
+  { original:'Acme Corp', replacement:'Company A' },
+  { original:'John Smith', replacement:'Person X' },
+  { original:'secret@email.com', replacement:'user@example.com' },
 ];
 let shDict = [];
 
@@ -2731,81 +3335,146 @@ document.getElementById('csv-export').addEventListener('click', () => {
 /* ===================== MARKDOWN PREVIEW ===================== */
 let mdCurrentFile = null;
 
+/* ---------- inline renderer ---------- */
+function mdInline(s) {
+  // escape HTML first (except in code spans handled below)
+  return s
+    .replace(/`([^`]+)`/g, (_,c) => `<code>${c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code>`)
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%">')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/~~(.+?)~~/g, '<del>$1</del>');
+}
+
+/* ---------- block-level parser (line-by-line state machine) ---------- */
+function mdParse(src) {
+  const lines = src.split('\n');
+  const blocks = []; // [{type, content, ...}]
+  let i = 0;
+
+  while (i < lines.length) {
+    const raw = lines[i];
+    const line = raw;
+
+    // blank line — ends any implicit para
+    if (!line.trim()) { blocks.push({type:'blank'}); i++; continue; }
+
+    // fenced code block
+    if (/^```/.test(line)) {
+      const lang = line.slice(3).trim();
+      let code = '';
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i])) { code += lines[i] + '\n'; i++; }
+      i++; // skip closing ```
+      blocks.push({type:'code', lang, code});
+      continue;
+    }
+
+    // heading
+    const hm = line.match(/^(#{1,6})\s+(.+)$/);
+    if (hm) { blocks.push({type:'heading', level:hm[1].length, text:hm[2]}); i++; continue; }
+
+    // hr
+    if (/^(\-{3,}|\*{3,}|_{3,})\s*$/.test(line)) { blocks.push({type:'hr'}); i++; continue; }
+
+    // blockquote
+    if (/^>\s?/.test(line)) {
+      let bq = '';
+      while (i < lines.length && /^>\s?/.test(lines[i])) { bq += lines[i].replace(/^>\s?/,'') + '\n'; i++; }
+      blocks.push({type:'blockquote', content: bq});
+      continue;
+    }
+
+    // table (must have separator on next line)
+    if (/^\|.+\|$/.test(line) && i+1 < lines.length && /^\|[\s\-|:]+\|$/.test(lines[i+1])) {
+      const headers = line.slice(1,-1).split('|').map(c=>c.trim());
+      i += 2; // skip header + separator
+      const rows = [];
+      while (i < lines.length && /^\|.+\|$/.test(lines[i])) {
+        rows.push(lines[i].slice(1,-1).split('|').map(c=>c.trim())); i++;
+      }
+      blocks.push({type:'table', headers, rows});
+      continue;
+    }
+
+    // unordered list
+    if (/^[\*\-]\s+/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^[\*\-]\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^[\*\-]\s+/,'')); i++;
+      }
+      blocks.push({type:'ul', items});
+      continue;
+    }
+
+    // ordered list
+    if (/^\d+\.\s+/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^\d+\.\s+/,'')); i++;
+      }
+      blocks.push({type:'ol', items});
+      continue;
+    }
+
+    // paragraph — accumulate until blank line OR a block-level marker
+    let para = '';
+    while (i < lines.length) {
+      const l = lines[i];
+      // stop at blank or block-level starters
+      if (!l.trim()) break;
+      if (/^(#{1,6}\s|```|>\s?|[\*\-]\s|\d+\.\s|\|.*\|$|(\-{3,}|\*{3,}|_{3,})\s*$)/.test(l)) break;
+      para += (para ? ' ' : '') + l.trim();
+      i++;
+    }
+    if (para) blocks.push({type:'para', text:para});
+  }
+  return blocks;
+}
+
+function mdBlocksToHTML(blocks) {
+  let html = '';
+  for (const b of blocks) {
+    if (b.type === 'blank')   { html += ''; continue; }
+    if (b.type === 'hr')      { html += '<hr>'; continue; }
+    if (b.type === 'heading') { html += `<h${b.level}>${mdInline(b.text)}</h${b.level}>`; continue; }
+    if (b.type === 'code')    {
+      const safe = b.code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      html += `<pre><code class="lang-${b.lang||''}">${safe}</code></pre>`; continue;
+    }
+    if (b.type === 'blockquote') {
+      const inner = mdBlocksToHTML(mdParse(b.content));
+      html += `<blockquote>${inner}</blockquote>`; continue;
+    }
+    if (b.type === 'para')    { html += `<p>${mdInline(b.text)}</p>`; continue; }
+    if (b.type === 'ul') {
+      html += '<ul>' + b.items.map(it=>`<li>${mdInline(it)}</li>`).join('') + '</ul>'; continue;
+    }
+    if (b.type === 'ol') {
+      html += '<ol>' + b.items.map(it=>`<li>${mdInline(it)}</li>`).join('') + '</ol>'; continue;
+    }
+    if (b.type === 'table') {
+      const ths = b.headers.map(h=>`<th>${mdInline(h)}</th>`).join('');
+      const trs = b.rows.map(r=>'<tr>'+r.map(c=>`<td>${mdInline(c)}</td>`).join('')+'</tr>').join('');
+      html += `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`; continue;
+    }
+  }
+  return html;
+}
+
 function mdRender() {
   const src = document.getElementById('md-input').value;
   const preview = document.getElementById('md-preview');
 
-  // --- stats ---
+  // stats
   const words = src.trim() ? src.trim().split(/\s+/).length : 0;
   document.getElementById('md-words').textContent = words;
   document.getElementById('md-lines').textContent = src ? src.split('\n').length : 0;
   document.getElementById('md-chars').textContent = src.length;
 
-  // --- parse tables first (before other transforms touch |) ---
-  let lines = src.split('\n');
-  let out = [];
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-    // detect table: line starts and ends with |
-    if (/^\|.+\|$/.test(line)) {
-      let tableLines = [line];
-      // skip separator row (---|---|)
-      if (i+1 < lines.length && /^\|[\s\-\|:]+\|$/.test(lines[i+1])) {
-        i += 2; // skip header + separator
-        while (i < lines.length && /^\|.+\|$/.test(lines[i])) {
-          tableLines.push(lines[i]); i++;
-        }
-        const [hdr, ...rows] = tableLines;
-        const ths = hdr.slice(1,-1).split('|').map(c=>`<th>${mdInline(c.trim())}</th>`).join('');
-        const trs = rows.map(r=>'<tr>'+r.slice(1,-1).split('|').map(c=>`<td>${mdInline(c.trim())}</td>`).join('')+'</tr>').join('');
-        out.push(`<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`);
-      } else { out.push(mdInline(line)); i++; }
-    } else { out.push(line); i++; }
-  }
-  let html = out.join('\n');
-
-  // --- block elements ---
-  html = html
-    // fenced code blocks
-    .replace(/```(\w*)\n?([\s\S]*?)```/gm, (_,lang,code) =>
-      `<pre><code class="lang-${lang}">${code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre>`)
-    // headings
-    .replace(/^#{6}\s+(.+)$/gm,'<h6>$1</h6>')
-    .replace(/^#{5}\s+(.+)$/gm,'<h5>$1</h5>')
-    .replace(/^#{4}\s+(.+)$/gm,'<h4>$1</h4>')
-    .replace(/^#{3}\s+(.+)$/gm,'<h3>$1</h3>')
-    .replace(/^#{2}\s+(.+)$/gm,'<h2>$1</h2>')
-    .replace(/^#\s+(.+)$/gm,'<h1>$1</h1>')
-    // hr
-    .replace(/^(\-{3,}|\*{3,}|_{3,})$/gm,'<hr>')
-    // blockquote
-    .replace(/^>\s?(.*)$/gm,'<blockquote>$1</blockquote>')
-    // unordered lists
-    .replace(/^[\*\-]\s+(.+)$/gm,'<li>$1</li>')
-    // ordered lists
-    .replace(/^\d+\.\s+(.+)$/gm,'<oli>$1</oli>')
-    // wrap consecutive <li>
-    .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>'+m+'</ul>')
-    // wrap consecutive <oli>
-    .replace(/(<oli>.*<\/oli>\n?)+/g, m => '<ol>'+m.replace(/<\/?oli>/g, s=>s.replace('oli','li'))+'</ol>')
-    // inline elements (on non-code lines)
-    .replace(/(?<!<pre[\s\S]*?)(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|~~[^~]+~~|\[.+?\]\(.+?\)|!\[.*?\]\(.+?\))/g, mdInlineReplace)
-    // paragraphs
-    .replace(/\n\n+/g, '</p><p>')
-    .replace(/^(?!<[a-z])(.+)$/gm, '$1');
-
-  preview.innerHTML = '<p>' + html + '</p>';
-}
-
-function mdInline(s) {
-  return s
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,'<em>$1</em>')
-    .replace(/~~(.+?)~~/g,'<del>$1</del>')
-    .replace(/`([^`]+)`/g,'<code>$1</code>')
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" style="max-width:100%">')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+  preview.innerHTML = mdBlocksToHTML(mdParse(src));
 }
 
 function mdInlineReplace(match) { return mdInline(match); }
@@ -2997,9 +3666,720 @@ async function b64FromFile(){
   toast('File encoded to Base64');
 }
 
+
+/* ============================================================
+   MISSION CONTROL
+   ============================================================ */
+const MC_KEY = 'prosuite_mc_v1';
+const MC_PROJ_KEY = 'prosuite_mc_projects_v1';
+
+const PRI_META = {
+  'urgent-important': { label: '🔴 Urgent + Important', order: 0 },
+  'important':        { label: '🟡 Important',          order: 1 },
+  'urgent':           { label: '🟠 Urgent',             order: 2 },
+  'someday':          { label: '⚪ Someday',             order: 3 },
+};
+
+let mcTasks = [];
+let mcProjects = [];
+let mcView = 'board';
+let mcEditingId = null;
+let mcPickedColor = '#4ecdc4';
+
+/* ── persistence ── */
+function mcLoad() {
+  try { mcTasks    = JSON.parse(localStorage.getItem(MC_KEY))      || []; } catch { mcTasks = []; }
+  try { mcProjects = JSON.parse(localStorage.getItem(MC_PROJ_KEY)) || []; } catch { mcProjects = []; }
+  if (!mcProjects.length) mcSeedProjects();
+}
+
+function mcSave() {
+  try {
+    localStorage.setItem(MC_KEY, JSON.stringify(mcTasks));
+    localStorage.setItem(MC_PROJ_KEY, JSON.stringify(mcProjects));
+  } catch(e) { toast('Storage full — export a backup'); }
+}
+
+function mcSeedProjects() {
+  mcProjects = [
+    { id: mcUID(), name: 'Work',     color: '#4ecdc4', icon: '💼' },
+    { id: mcUID(), name: 'Personal', color: '#9b6dff', icon: '🏠' },
+    { id: mcUID(), name: 'Health',   color: '#2ecc71', icon: '💪' },
+  ];
+}
+
+/* ── helpers ── */
+function mcUID() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function mcFmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+}
+
+function mcDueClass(iso) {
+  if (!iso) return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due   = new Date(iso + 'T00:00:00');
+  if (due < today) return 'overdue';
+  if (due.getTime() === today.getTime()) return 'today-due';
+  return '';
+}
+
+function mcIsToday(iso) { if(!iso) return false; const t=new Date();t.setHours(0,0,0,0);const d=new Date(iso+'T00:00:00');return d.getTime()===t.getTime(); }
+function mcIsThisWeek(iso) { if(!iso) return false; const t=new Date();t.setHours(0,0,0,0);const d=new Date(iso+'T00:00:00');const e=new Date(t);e.setDate(e.getDate()+7);return d>=t&&d<e; }
+function mcIsOverdue(iso) { if(!iso) return false; const t=new Date();t.setHours(0,0,0,0);return new Date(iso+'T00:00:00')<t; }
+
+/* ── parse command bar ── */
+function mcParseCmd(raw) {
+  let text = raw;
+  let proj = null, pri = 'important', due = null;
+
+  // project: #Name
+  const projM = text.match(/#(\S+)/);
+  if (projM) {
+    const name = projM[1].toLowerCase();
+    proj = mcProjects.find(p => p.name.toLowerCase().startsWith(name)) || null;
+    text = text.replace(projM[0], '').trim();
+  }
+
+  // priority: !urgent / !high / !low / !someday
+  const priM = text.match(/!(urgent-important|urgent|important|someday|high|low|u|i|s)/i);
+  if (priM) {
+    const p = priM[1].toLowerCase();
+    if (p==='u'||p==='urgent') pri='urgent';
+    else if (p==='high'||p==='urgent-important') pri='urgent-important';
+    else if (p==='low'||p==='s'||p==='someday') pri='someday';
+    else pri='important';
+    text = text.replace(priM[0], '').trim();
+  }
+
+  // due: due:fri / due:2025-06-10 / due:tomorrow / due:today
+  const dueM = text.match(/due:(\S+)/i);
+  if (dueM) {
+    const ds = dueM[1].toLowerCase();
+    const today = new Date(); today.setHours(0,0,0,0);
+    const days = ['sun','mon','tue','wed','thu','fri','sat'];
+    if (ds==='today') due = today.toISOString().slice(0,10);
+    else if (ds==='tomorrow') { const t=new Date(today);t.setDate(t.getDate()+1);due=t.toISOString().slice(0,10); }
+    else if (days.includes(ds)) {
+      const target=days.indexOf(ds); let diff=target-today.getDay();
+      if(diff<=0)diff+=7; const t=new Date(today);t.setDate(t.getDate()+diff);due=t.toISOString().slice(0,10);
+    } else if (/^\d{4}-\d{2}-\d{2}$/.test(ds)) due=ds;
+    text = text.replace(dueM[0], '').trim();
+  }
+
+  return { title: text.trim(), projId: proj?.id || (mcProjects[0]?.id||null), pri, due };
+}
+
+function mcCmdKey(e) {
+  if (e.key !== 'Enter') return;
+  const raw = e.target.value.trim();
+  if (!raw) return;
+  const parsed = mcParseCmd(raw);
+  if (!parsed.title) return toast('Enter a task title');
+  mcTasks.unshift({ id:mcUID(), title:parsed.title, projId:parsed.projId, pri:parsed.pri, due:parsed.due, notes:'', done:false, created:Date.now() });
+  mcSave(); mcRenderAll();
+  e.target.value = '';
+  document.getElementById('mc-cmd-hint').style.display = '';
+  toast('✅ Task added');
+}
+
+function mcCmdHint(el) {
+  const hint = document.getElementById('mc-cmd-hint');
+  hint.style.display = el.value ? 'none' : '';
+}
+
+/* ── views ── */
+function mcSetView(v) {
+  mcView = v;
+  document.querySelectorAll('.mc-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view===v));
+  document.querySelectorAll('.mc-view').forEach(el => el.style.display='none');
+  document.getElementById('mc-view-'+v).style.display='';
+  mcRenderAll();
+}
+
+function mcRenderAll() {
+  mcRenderTimelineStrip();
+  if (mcView==='board')    mcRenderBoard();
+  if (mcView==='today')    mcRenderToday();
+  if (mcView==='timeline') mcRenderTimeline();
+  if (mcView==='list')     mcRenderList();
+  mcPopulateListFilters();
+}
+
+/* ── BOARD ── */
+function mcRenderBoard() {
+  const board = document.getElementById('mc-board');
+  if (!mcProjects.length) { board.innerHTML='<div class="mc-empty"><div class="mc-empty-icon">🗂</div>No projects yet — click + Project</div>'; return; }
+  board.innerHTML = '';
+  mcProjects.forEach(proj => {
+    const tasks = mcTasks.filter(t=>t.projId===proj.id).sort((a,b)=>(PRI_META[a.pri]?.order||0)-(PRI_META[b.pri]?.order||0));
+    const open = tasks.filter(t=>!t.done);
+    const col = document.createElement('div');
+    col.className = 'mc-col';
+    col.innerHTML = `
+      <div class="mc-col-head">
+        <div class="mc-col-accent" style="background:${proj.color}"></div>
+        <span style="font-size:16px">${proj.icon||'📁'}</span>
+        <span class="mc-col-name">${escHtml(proj.name)}</span>
+        <span class="mc-col-count">${open.length}</span>
+        <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px" onclick="mcEditProject('${proj.id}')" title="Edit project">⚙</button>
+      </div>
+      <div class="mc-col-body" id="mc-col-${proj.id}">${tasks.length ? tasks.map(t=>mcTaskCard(t,proj)).join('') : '<div class="mc-empty"><div class="mc-empty-icon">✨</div>No tasks</div>'}</div>
+      <div class="mc-add-area">
+        <input class="mc-add-input" placeholder="+ Add task…" onkeydown="mcInlineAdd(event,'${proj.id}')">
+      </div>`;
+    board.appendChild(col);
+  });
+}
+
+function mcTaskCard(t, proj) {
+  const dueClass = mcDueClass(t.due);
+  const dueBadge = t.due ? `<span class="mc-task-due ${dueClass}">${mcFmtDate(t.due)}</span>` : '';
+  const priBadge = `<span style="font-size:10px">${PRI_META[t.pri]?.label||''}</span>`;
+  const notesTxt = t.notes ? `<div class="mc-task-notes">${escHtml(t.notes)}</div>` : '';
+  return `<div class="mc-task${t.done?' done':''}" data-pri="${t.pri}" onclick="mcOpenEdit('${t.id}')">
+    <div class="mc-task-top">
+      <div class="mc-task-check${t.done?' checked':''}" onclick="event.stopPropagation();mcToggle('${t.id}')"></div>
+      <div class="mc-task-title">${escHtml(t.title)}</div>
+    </div>
+    <div class="mc-task-meta">${priBadge}${dueBadge}</div>
+    ${notesTxt}
+  </div>`;
+}
+
+function mcInlineAdd(e, projId) {
+  if (e.key !== 'Enter') return;
+  const v = e.target.value.trim(); if(!v) return;
+  mcTasks.unshift({ id:mcUID(), title:v, projId, pri:'important', due:null, notes:'', done:false, created:Date.now() });
+  mcSave(); mcRenderAll(); e.target.value=''; toast('✅ Task added');
+}
+
+/* ── TODAY ── */
+function mcRenderToday() {
+  const todayTasks = mcTasks.filter(t=>!t.done&&(mcIsToday(t.due)||mcIsOverdue(t.due)||t.pri==='urgent-important'));
+  const weekTasks  = mcTasks.filter(t=>!t.done&&mcIsThisWeek(t.due)&&!mcIsToday(t.due)&&!mcIsOverdue(t.due));
+  document.getElementById('mc-today-count').textContent = todayTasks.length + ' tasks';
+  document.getElementById('mc-today-list').innerHTML = todayTasks.length
+    ? todayTasks.map(t=>mcListRowHTML(t)).join('')
+    : '<div class="mc-empty"><div class="mc-empty-icon">🎉</div>Nothing urgent — enjoy the calm</div>';
+  document.getElementById('mc-week-list').innerHTML = weekTasks.length
+    ? weekTasks.map(t=>mcListRowHTML(t)).join('')
+    : '<div class="mc-empty">No tasks due this week</div>';
+}
+
+/* ── TIMELINE ── */
+function mcRenderTimeline() {
+  const el = document.getElementById('mc-timeline-full');
+  const withDue = mcTasks.filter(t=>t.due&&!t.done).sort((a,b)=>a.due.localeCompare(b.due));
+  if (!withDue.length) { el.innerHTML='<div class="mc-empty"><div class="mc-empty-icon">📆</div>No tasks with due dates</div>'; return; }
+  // group by date
+  const groups = {};
+  withDue.forEach(t=>{ (groups[t.due]||(groups[t.due]=[])).push(t); });
+  el.innerHTML = Object.entries(groups).map(([date,tasks])=>`
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)">
+        ${mcDueClass(date)==='overdue'?'🔴 ':mcDueClass(date)==='today-due'?'🟡 ':''}${new Date(date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}
+      </div>
+      ${tasks.map(t=>mcListRowHTML(t)).join('')}
+    </div>`).join('');
+}
+
+/* ── TIMELINE STRIP (week bar at top) ── */
+function mcRenderTimelineStrip() {
+  const strip = document.getElementById('mc-timeline-strip');
+  const today = new Date(); today.setHours(0,0,0,0);
+  strip.innerHTML = '';
+  for (let i=0; i<7; i++) {
+    const d = new Date(today); d.setDate(today.getDate()+i);
+    const iso = d.toISOString().slice(0,10);
+    const dayTasks = mcTasks.filter(t=>t.due===iso&&!t.done);
+    const chip = document.createElement('div');
+    chip.className = 'mc-day-chip' + (i===0?' today-chip':'');
+    chip.innerHTML = `<div class="dc-label">${i===0?'Today':d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric'})}</div>
+      <div class="dc-tasks">${dayTasks.slice(0,3).map(t=>`<div class="dc-task" title="${escHtml(t.title)}">${escHtml(t.title)}</div>`).join('')}${dayTasks.length>3?`<div style="font-size:9px;color:var(--muted);padding:1px 4px">+${dayTasks.length-3} more</div>`:''}</div>`;
+    strip.appendChild(chip);
+  }
+}
+
+/* ── LIST VIEW ── */
+function mcPopulateListFilters() {
+  const sel = document.getElementById('mc-list-proj');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Projects</option>' + mcProjects.map(p=>`<option value="${p.id}">${escHtml(p.icon+' '+p.name)}</option>`).join('');
+  sel.value = cur;
+}
+
+function mcRenderList() {
+  const filter  = document.getElementById('mc-list-filter')?.value.toLowerCase()||'';
+  const projFil = document.getElementById('mc-list-proj')?.value||'';
+  const priFil  = document.getElementById('mc-list-pri')?.value||'';
+  const sortBy  = document.getElementById('mc-list-sort')?.value||'due';
+  let tasks = [...mcTasks];
+  if (filter)  tasks = tasks.filter(t=>t.title.toLowerCase().includes(filter)||(t.notes||'').toLowerCase().includes(filter));
+  if (projFil) tasks = tasks.filter(t=>t.projId===projFil);
+  if (priFil)  tasks = tasks.filter(t=>t.pri===priFil);
+  tasks.sort((a,b)=>{
+    if (sortBy==='due')      return (a.due||'9999').localeCompare(b.due||'9999');
+    if (sortBy==='priority') return (PRI_META[a.pri]?.order||0)-(PRI_META[b.pri]?.order||0);
+    if (sortBy==='created')  return b.created-a.created;
+    if (sortBy==='alpha')    return a.title.localeCompare(b.title);
+    return 0;
+  });
+  const el = document.getElementById('mc-list-body');
+  el.innerHTML = tasks.length ? tasks.map(t=>mcListRowHTML(t)).join('') : '<div class="mc-empty"><div class="mc-empty-icon">🔍</div>No matching tasks</div>';
+}
+
+function mcListRowHTML(t) {
+  const proj = mcProjects.find(p=>p.id===t.projId);
+  const dueClass = mcDueClass(t.due);
+  return `<div class="mc-list-row${t.done?' done':''}" data-pri="${t.pri}">
+    <div class="mc-task-check${t.done?' checked':''}" onclick="mcToggle('${t.id}')" style="width:16px;height:16px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;display:grid;place-items:center;transition:all .15s;${t.done?'background:var(--green);border-color:var(--green)':''}">
+      ${t.done?'<span style="font-size:9px;color:#0b0d12;font-weight:900">✓</span>':''}
+    </div>
+    <span class="mc-lr-title">${escHtml(t.title)}</span>
+    <span class="mc-lr-proj" style="color:${proj?.color||'var(--muted)'};">${escHtml((proj?.icon||'')+(proj?.name||'—'))}</span>
+    <span class="mc-lr-due ${dueClass}">${mcFmtDate(t.due)||'—'}</span>
+    <span class="mc-lr-pri">${PRI_META[t.pri]?.label||''}</span>
+    <button class="mc-lr-edit" onclick="mcOpenEdit('${t.id}')">✎</button>
+  </div>`;
+}
+
+/* ── toggle done ── */
+function mcToggle(id) {
+  const t = mcTasks.find(x=>x.id===id); if(!t) return;
+  t.done = !t.done; mcSave(); mcRenderAll();
+}
+
+/* ── edit modal ── */
+function mcOpenEdit(id) {
+  const t = mcTasks.find(x=>x.id===id); if(!t) return;
+  mcEditingId = id;
+  document.getElementById('mc-modal-title').textContent = 'Edit Task';
+  document.getElementById('mc-edit-id').value = id;
+  document.getElementById('mc-edit-title').value = t.title;
+  document.getElementById('mc-edit-notes').value = t.notes||'';
+  document.getElementById('mc-edit-pri').value = t.pri;
+  document.getElementById('mc-edit-due').value = t.due||'';
+  // populate project select
+  const ps = document.getElementById('mc-edit-proj');
+  ps.innerHTML = mcProjects.map(p=>`<option value="${p.id}">${escHtml(p.icon+' '+p.name)}</option>`).join('');
+  ps.value = t.projId||'';
+  document.getElementById('mc-delete-btn').style.display='';
+  const m = document.getElementById('mc-task-modal');
+  m.style.display='flex';
+  document.getElementById('mc-edit-title').focus();
+}
+
+function mcSaveTask() {
+  const id = document.getElementById('mc-edit-id').value;
+  const title = document.getElementById('mc-edit-title').value.trim();
+  if (!title) return toast('Task title required');
+  if (id) {
+    const t = mcTasks.find(x=>x.id===id); if(!t) return;
+    t.title  = title;
+    t.notes  = document.getElementById('mc-edit-notes').value.trim();
+    t.projId = document.getElementById('mc-edit-proj').value;
+    t.pri    = document.getElementById('mc-edit-pri').value;
+    t.due    = document.getElementById('mc-edit-due').value||null;
+  }
+  mcSave(); mcCloseModal('mc-task-modal'); mcRenderAll(); toast('✅ Saved');
+}
+
+function mcDeleteTask() {
+  const id = document.getElementById('mc-edit-id').value;
+  if (!id||!confirm('Delete this task?')) return;
+  mcTasks = mcTasks.filter(t=>t.id!==id);
+  mcSave(); mcCloseModal('mc-task-modal'); mcRenderAll(); toast('🗑 Deleted');
+}
+
+/* ── project modal ── */
+function mcOpenProjectModal(editId) {
+  mcPickedColor = '#4ecdc4';
+  document.getElementById('mc-proj-name').value = '';
+  document.getElementById('mc-proj-icon').value = '';
+  document.querySelectorAll('.mc-color-pick').forEach(el=>el.classList.remove('selected'));
+  document.querySelector('.mc-color-pick[data-color="#4ecdc4"]')?.classList.add('selected');
+  const m = document.getElementById('mc-proj-modal');
+  m.style.display='flex';
+  document.getElementById('mc-proj-name').focus();
+}
+
+function mcPickColor(el) {
+  document.querySelectorAll('.mc-color-pick').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  mcPickedColor = el.dataset.color;
+}
+
+function mcSaveProject() {
+  const name = document.getElementById('mc-proj-name').value.trim();
+  if (!name) return toast('Project name required');
+  mcProjects.push({ id:mcUID(), name, color:mcPickedColor, icon:document.getElementById('mc-proj-icon').value.trim()||'📁' });
+  mcSave(); mcCloseModal('mc-proj-modal'); mcRenderAll(); toast('✅ Project created');
+}
+
+function mcEditProject(id) {
+  const proj = mcProjects.find(p=>p.id===id); if(!proj) return;
+  const newName = prompt('Rename project:', proj.name);
+  if (newName===null) return;
+  if (!newName.trim()) { if(confirm('Delete this project and all its tasks?')) { mcProjects=mcProjects.filter(p=>p.id!==id); mcTasks=mcTasks.filter(t=>t.projId!==id); mcSave(); mcRenderAll(); } return; }
+  proj.name = newName.trim(); mcSave(); mcRenderAll();
+}
+
+function mcCloseModal(id) {
+  document.getElementById(id).style.display='none';
+  mcEditingId=null;
+}
+
+// Close modals on backdrop click
+['mc-task-modal','mc-proj-modal'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('click',function(e){if(e.target===this)mcCloseModal(id);});
+});
+
+// ESC closes modal
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){mcCloseModal('mc-task-modal');mcCloseModal('mc-proj-modal');}});
+
+/* ── export / import ── */
+function mcExport() {
+  const data = { projects:mcProjects, tasks:mcTasks, exported:new Date().toISOString() };
+  saveBlob(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),'mission_control_backup.json');
+  toast('Backup exported');
+}
+
+function mcImport(e) {
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=ev=>{
+    try {
+      const d=JSON.parse(ev.target.result);
+      if(!d.projects||!d.tasks) throw new Error('Invalid format');
+      if(!confirm(`Import ${d.projects.length} projects and ${d.tasks.length} tasks? This merges with existing data.`)) return;
+      // merge by id
+      d.projects.forEach(p=>{ if(!mcProjects.find(x=>x.id===p.id)) mcProjects.push(p); });
+      d.tasks.forEach(t=>{ if(!mcTasks.find(x=>x.id===t.id)) mcTasks.push(t); });
+      mcSave(); mcRenderAll(); toast(`Imported ${d.tasks.length} tasks`);
+    } catch(err) { toast('Invalid backup file'); }
+  };
+  rd.readAsText(f); e.target.value='';
+}
+
+/* ── init ── */
+function mcInit() {
+  mcLoad();
+  mcRenderAll();
+}
+
+
+/* ============================================================
+   WHATSAPP FORMATTER
+   ============================================================ */
+
+// Set placeholder
+(function(){
+  const el = document.getElementById('wa-input');
+  if (el) el.setAttribute('data-placeholder','Paste or type your message here…\nUse the toolbar above to format — or just paste styled text from Word, email, or any editor.');
+})();
+
+function waFmt(cmd) {
+  document.getElementById('wa-input').focus();
+  document.execCommand(cmd, false, null);
+  waConvert();
+}
+
+function waFmtMono() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount || sel.isCollapsed) return;
+  const range = sel.getRangeAt(0);
+  const text = range.toString();
+  if (!text) return;
+  const code = document.createElement('code');
+  code.style.fontFamily = 'var(--mono)';
+  code.style.background = 'rgba(255,255,255,0.08)';
+  code.style.padding = '1px 4px';
+  code.style.borderRadius = '3px';
+  code.textContent = text;
+  range.deleteContents();
+  range.insertNode(code);
+  waConvert();
+}
+
+function waFmtQuote() {
+  const sel = window.getSelection();
+  const inp = document.getElementById('wa-input');
+  inp.focus();
+  if (!sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  const text = range.toString() || 'Quote text here';
+  const bq = document.createElement('blockquote');
+  bq.style.borderLeft = '3px solid var(--green)';
+  bq.style.paddingLeft = '12px';
+  bq.style.margin = '4px 0';
+  bq.style.color = 'var(--muted)';
+  bq.textContent = text;
+  if (!sel.isCollapsed) range.deleteContents();
+  range.insertNode(bq);
+  waConvert();
+}
+
+function waFmtList(type) {
+  document.getElementById('wa-input').focus();
+  document.execCommand(type === 'ul' ? 'insertUnorderedList' : 'insertOrderedList', false, null);
+  waConvert();
+}
+
+function waClear() {
+  document.getElementById('wa-input').innerHTML = '';
+  document.getElementById('wa-output').value = '';
+  document.getElementById('wa-preview').innerHTML = '';
+  document.getElementById('wa-char-count').textContent = '0 chars';
+}
+
+async function waPasteClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('wa-input').focus();
+    document.execCommand('insertText', false, text);
+    waConvert();
+  } catch(e) {
+    toast('Tap inside the input area first, then paste manually (Ctrl+V / long-press)');
+  }
+}
+
+/* ── core converter: HTML → WhatsApp markdown ── */
+function waConvert() {
+  const inp = document.getElementById('wa-input');
+  const html = inp.innerHTML;
+  if (!html || html === '<br>') {
+    document.getElementById('wa-output').value = '';
+    document.getElementById('wa-preview').innerHTML = '';
+    document.getElementById('wa-char-count').textContent = '0 chars';
+    return;
+  }
+
+  const optBullets  = document.getElementById('wa-opt-bullets')?.checked !== false;
+  const optNumbers  = document.getElementById('wa-opt-numbers')?.checked !== false;
+  const optDividers = document.getElementById('wa-opt-dividers')?.checked !== false;
+
+  // Parse DOM to WhatsApp text
+  const result = waNodeToText(inp, { optBullets, optNumbers, optDividers, depth: 0, olCounter: [0] });
+  const clean = result
+    .replace(/\n{3,}/g, '\n\n').replace(/^\n+|\n+$/g, '').trim();
+
+  document.getElementById('wa-output').value = clean;
+  document.getElementById('wa-char-count').textContent = clean.length + ' chars';
+  waRenderPreview(clean);
+}
+
+function waNodeToText(node, opts) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.textContent;
+  }
+
+  if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+  const tag = node.tagName.toLowerCase();
+  const children = () => Array.from(node.childNodes).map(c => waNodeToText(c, opts)).join('');
+  const inner = children();
+
+  // Headings → bold + newlines (WA has no headings)
+  if (['h1','h2','h3','h4','h5','h6'].includes(tag)) {
+    const lvl = parseInt(tag[1]);
+    const prefix = lvl === 1 ? '' : '';
+    const divider = (opts.optDividers && lvl <= 2) ? '\n' + '─'.repeat(20) : '';
+    return '\n*' + inner.trim() + '*' + divider + '\n';
+  }
+
+  // Bold
+  if (['strong','b'].includes(tag)) {
+    const t = inner.trim();
+    return t ? '*' + t + '*' : '';
+  }
+
+  // Italic
+  if (['em','i'].includes(tag)) {
+    const t = inner.trim();
+    return t ? '_' + t + '_' : '';
+  }
+
+  // Strikethrough
+  if (['s','del','strike'].includes(tag)) {
+    const t = inner.trim();
+    return t ? '~' + t + '~' : '';
+  }
+
+  // Monospace / code
+  if (['code','kbd','tt'].includes(tag)) {
+    const t = inner.trim();
+    return t ? '```' + t + '```' : '';
+  }
+
+  // Pre / code block
+  if (tag === 'pre') {
+    return '\n```\n' + inner.trim() + '\n```\n';
+  }
+
+  // Blockquote
+  if (tag === 'blockquote') {
+    const lines = inner.trim().split('\n');
+    return '\n' + lines.map(l => '> ' + l).join('\n') + '\n';
+  }
+
+  // Unordered list
+  if (tag === 'ul') {
+    const items = Array.from(node.querySelectorAll(':scope > li'));
+    if (!items.length) return inner;
+    if (!opts.optBullets) return '\n' + items.map(li => '• ' + li.textContent.trim()).join('\n') + '\n';
+    return '\n' + items.map(li => '- ' + waNodeToText(li, opts).trim()).join('\n') + '\n';
+  }
+
+  // Ordered list
+  if (tag === 'ol') {
+    const items = Array.from(node.querySelectorAll(':scope > li'));
+    if (!items.length) return inner;
+    if (!opts.optNumbers) return '\n' + items.map((li,i) => (i+1)+'. ' + li.textContent.trim()).join('\n') + '\n';
+    return '\n' + items.map((li,i) => (i+1)+'. ' + waNodeToText(li, opts).trim()).join('\n') + '\n';
+  }
+
+  // List item (standalone, not inside ul/ol we handle above)
+  if (tag === 'li') return inner;
+
+  // Paragraph / div / section → newlines
+  if (['p','div','section','article'].includes(tag)) {
+    const t = inner.trim();
+    return t ? '\n' + t + '\n' : '\n';
+  }
+
+  // Line break
+  if (tag === 'br') return '\n';
+
+  // Horizontal rule → divider
+  if (tag === 'hr') return '\n' + (opts.optDividers ? '─'.repeat(20) : '') + '\n';
+
+  // Table → plain text approximation
+  if (tag === 'table') {
+    let out = '\n';
+    const rows = node.querySelectorAll('tr');
+    rows.forEach((row, ri) => {
+      const cells = Array.from(row.querySelectorAll('th,td')).map(c => c.textContent.trim());
+      if (ri === 0) {
+        // header row — bold each cell
+        out += cells.map(c => '*' + c + '*').join('  |  ') + '\n';
+        if (opts.optDividers) out += '─'.repeat(30) + '\n';
+      } else {
+        out += cells.join('  |  ') + '\n';
+      }
+    });
+    return out + '\n';
+  }
+
+  // Link → text (URL) — WA auto-links
+  if (tag === 'a') {
+    const href = node.getAttribute('href') || '';
+    const t = inner.trim();
+    if (href && href !== t && !href.startsWith('#')) return t + ' (' + href + ')';
+    return t;
+  }
+
+  // Image → alt text or skip
+  if (tag === 'img') {
+    const alt = node.getAttribute('alt') || '';
+    return alt ? '[Image: ' + alt + ']' : '';
+  }
+
+  // Span — check inline styles for bold/italic
+  if (tag === 'span') {
+    const style = node.getAttribute('style') || '';
+    let t = inner;
+    if (/font-weight[\s]*:[\s]*(bold|[6-9][0-9][0-9])/.test(style)) t = '*' + t.trim() + '*';
+    if (/font-style[\s]*:[\s]*italic/.test(style)) t = '_' + t.trim() + '_';
+    return t;
+  }
+
+  // Everything else — just return children
+  return inner;
+}
+
+/* ── render preview: WA syntax → visual HTML ── */
+function waRenderPreview(text) {
+  const preview = document.getElementById('wa-preview');
+  if (!text) { preview.innerHTML = ''; return; }
+
+  let html = text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*([^*\n]+)\*/g,'<strong>$1</strong>')
+    .replace(/_([^_\n]+)_/g,'<em>$1</em>')
+    .replace(/~([^~\n]+)~/g,'<del>$1</del>')
+    .replace(/```([^`]+)```/g,'<code>$1</code>')
+    .replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>')
+    .replace(/^\u2500+$/gm,'<hr style="border-color:var(--border2);margin:6px 0">')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/^\d+\.\s(.+)$/gm,'<li style="list-style-type:decimal;margin-left:18px">$1</li>')
+    .replace(/(<li[^>]*>[\s\S]*?<\/li>\n?)+/g, m => '<ul style="padding-left:18px;margin:4px 0">' + m + '</ul>')
+    .replace(/\n/g,'<br>');
+
+  preview.innerHTML = html;
+}
+
+/* ── tabs ── */
+function waTab(tab) {
+  const preview = document.getElementById('wa-preview');
+  const raw = document.getElementById('wa-output');
+  const tp = document.getElementById('wa-tab-preview');
+  const tr = document.getElementById('wa-tab-raw');
+  if (tab === 'preview') {
+    preview.style.display = ''; raw.style.display = 'none';
+    tp.classList.add('active'); tr.classList.remove('active');
+  } else {
+    preview.style.display = 'none'; raw.style.display = '';
+    tr.classList.add('active'); tp.classList.remove('active');
+  }
+}
+
+/* ── copy ── */
+async function waCopyOutput() {
+  const text = document.getElementById('wa-output').value;
+  if (!text) { toast('Nothing to copy — write something first'); return; }
+  try {
+    await navigator.clipboard.writeText(text);
+    const preview = document.getElementById('wa-preview');
+    preview.classList.add('copy-flash');
+    setTimeout(() => preview.classList.remove('copy-flash'), 500);
+    toast('✅ Copied — paste directly into WhatsApp');
+  } catch(e) {
+    // fallback: select textarea
+    waTab('raw');
+    const ta = document.getElementById('wa-output');
+    ta.select();
+    document.execCommand('copy');
+    toast('✅ Copied!');
+  }
+}
+
+/* ── templates ── */
+function waTemplate(type) {
+  const templates = {
+    update: `<h2>Project Status Update</h2><p><strong>Project:</strong> [Project Name]</p><p><strong>Status:</strong> On Track ✅</p><br><p><strong>Completed this week:</strong></p><ul><li>Item one completed</li><li>Item two completed</li><li>Item three completed</li></ul><p><strong>Next steps:</strong></p><ul><li>Action item one</li><li>Action item two</li></ul><p><em>Any blockers or concerns to flag here.</em></p>`,
+
+    meeting: `<h2>Meeting Notes</h2><p><strong>Date:</strong> ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</p><p><strong>Attendees:</strong> [Names]</p><p><strong>Agenda:</strong> [Topic]</p><hr><p><strong>Key Discussion Points:</strong></p><ul><li>Point one discussed</li><li>Point two discussed</li><li>Decision reached on X</li></ul><p><strong>Action Items:</strong></p><ol><li>Person A to complete X by [date]</li><li>Person B to follow up on Y</li></ol><p><strong>Next meeting:</strong> [Date/Time]</p>`,
+
+    action: `<h2>Action Items ✅</h2><p><strong>From:</strong> [Meeting/Discussion]</p><p><strong>Date:</strong> ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</p><hr><ol><li><strong>[Name]</strong> — Action description — <em>Due: [date]</em></li><li><strong>[Name]</strong> — Action description — <em>Due: [date]</em></li><li><strong>[Name]</strong> — Action description — <em>Due: [date]</em></li></ol><p>Please confirm receipt and advise if any clarification needed.</p>`,
+
+    announcement: `<h2>📢 Announcement</h2><p>Dear Team,</p><p>[Opening line — what is being announced]</p><p><strong>Key details:</strong></p><ul><li>Detail one</li><li>Detail two</li><li>Detail three</li></ul><p><strong>Effective from:</strong> [Date]</p><p><strong>Action required:</strong> [What people need to do, if anything]</p><p>For queries, please contact [Name/Contact].</p><p>Thank you.</p>`
+  };
+
+  const inp = document.getElementById('wa-input');
+  inp.innerHTML = templates[type] || '';
+  waConvert();
+  inp.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  toast('Template loaded — edit and convert');
+}
+
 /* ===================== INIT ===================== */
 shInit();
 mdRender();
+mcInit();
 document.getElementById('md-input').value = `# Welcome to ProSuite 🚀
 
 This is **Markdown Preview** — type or paste markdown on the left.

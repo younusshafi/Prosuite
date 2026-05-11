@@ -4183,24 +4183,29 @@ function waNodeToText(node, opts) {
   const children = () => Array.from(node.childNodes).map(c => waNodeToText(c, opts)).join('');
   const inner = children();
 
-  // Headings → bold + newlines (WA has no headings)
+  // Headings → bold (WA has no headings; blank line acts as visual separator)
   if (['h1','h2','h3','h4','h5','h6'].includes(tag)) {
     const lvl = parseInt(tag[1]);
-    const prefix = lvl === 1 ? '' : '';
-    const divider = (opts.optDividers && lvl <= 2) ? '\n' + '─'.repeat(20) : '';
-    return '\n*' + inner.trim() + '*' + divider + '\n';
+    const t = inner.trim();
+    if (!t) return '';
+    // H1: full-width separator above, H2: separator below, H3+: just bold
+    if (lvl === 1 && opts.optDividers) return '\n\n*' + t + '*\n';
+    if (lvl === 2 && opts.optDividers) return '\n*' + t + '*\n';
+    return '\n*' + t + '*\n';
   }
 
-  // Bold
+  // Bold — WA requires * to be at word boundary (no space inside)
   if (['strong','b'].includes(tag)) {
     const t = inner.trim();
-    return t ? '*' + t + '*' : '';
+    if (!t) return '';
+    return ' *' + t + '* ';
   }
 
-  // Italic
+  // Italic — WA requires _ at word boundary with space outside
   if (['em','i'].includes(tag)) {
     const t = inner.trim();
-    return t ? '_' + t + '_' : '';
+    if (!t) return '';
+    return ' _' + t + '_ ';
   }
 
   // Strikethrough
@@ -4306,18 +4311,37 @@ function waRenderPreview(text) {
   const preview = document.getElementById('wa-preview');
   if (!text) { preview.innerHTML = ''; return; }
 
+  // Step 1: escape HTML entities first
   let html = text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*([^*\n]+)\*/g,'<strong>$1</strong>')
-    .replace(/_([^_\n]+)_/g,'<em>$1</em>')
-    .replace(/~([^~\n]+)~/g,'<del>$1</del>')
-    .replace(/```([^`]+)```/g,'<code>$1</code>')
-    .replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>')
-    .replace(/^\u2500+$/gm,'<hr style="border-color:var(--border2);margin:6px 0">')
-    .replace(/^- (.+)$/gm,'<li>$1</li>')
-    .replace(/^\d+\.\s(.+)$/gm,'<li style="list-style-type:decimal;margin-left:18px">$1</li>')
-    .replace(/(<li[^>]*>[\s\S]*?<\/li>\n?)+/g, m => '<ul style="padding-left:18px;margin:4px 0">' + m + '</ul>')
-    .replace(/\n/g,'<br>');
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+
+  // Step 2: code blocks (must be before bold/italic to avoid mangling)
+  html = html.replace(/```([\s\S]*?)```/g,'<code style="font-family:var(--mono);font-size:12px;background:var(--surface3);padding:1px 4px;border-radius:3px">$1</code>');
+
+  // Step 3: bold — *text* with optional surrounding spaces
+  // WA bold: * must touch the word (no space after opening *, no space before closing *)
+  html = html.replace(/(?:^|(?<=\s|>))\*([^*\n]+?)\*(?=\s|$|<)/gm,'<strong>$1</strong>');
+  // fallback for remaining *text*
+  html = html.replace(/\*([^*\n]+?)\*/g,'<strong>$1</strong>');
+
+  // Step 4: italic — _text_
+  html = html.replace(/(?:^|(?<=\s|>))_([^_\n]+?)_(?=\s|$|<)/gm,'<em>$1</em>');
+  html = html.replace(/_([^_\n]+?)_/g,'<em>$1</em>');
+
+  // Step 5: strikethrough
+  html = html.replace(/~([^~\n]+?)~/g,'<del>$1</del>');
+
+  // Step 6: blockquote  
+  html = html.replace(/^&gt;\s?(.*)$/gm,'<div style="border-left:3px solid var(--green);padding-left:10px;color:var(--muted);margin:2px 0">$1</div>');
+
+  // Step 7: lists
+  html = html.replace(/^- (.+)$/gm,'<div style="padding-left:16px">• $1</div>');
+  html = html.replace(/^(\d+)\.\s(.+)$/gm,'<div style="padding-left:16px">$1. $2</div>');
+
+  // Step 8: newlines → <br>
+  html = html.replace(/\n/g,'<br>');
 
   preview.innerHTML = html;
 }
