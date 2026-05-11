@@ -4147,7 +4147,89 @@ async function waPasteClipboard() {
   }
 }
 
-/* ── core converter: HTML → WhatsApp markdown ── */
+/* ── detect if text is already markdown (has **bold** or *italic*) ── */
+function waIsMarkdown(text) {
+  return /\*\*[^*]+\*\*|^#{1,6}\s|^\*\s|^-\s|^\d+\.\s|_{2}[^_]+_{2}/m.test(text);
+}
+
+/* ── convert raw markdown → clean WhatsApp syntax ── */
+function waMdToWA(text, opts) {
+  const lines = text.split('\n');
+  const out = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+
+    // Headings: ## Heading → *Heading*
+    const hm = line.match(/^(#{1,6})\s+(.+)$/);
+    if (hm) {
+      out.push('\n*' + hm[2].trim() + '*');
+      continue;
+    }
+
+    // Horizontal rule ─── or --- or ***
+    if (/^(─{3,}|-{3,}|\*{3,})\s*$/.test(line)) {
+      // skip — replace with blank line for spacing
+      out.push('');
+      continue;
+    }
+
+    // Bullet list
+    if (/^[\*\-]\s+/.test(line)) {
+      const item = line.replace(/^[\*\-]\s+/, '').trim();
+      out.push('- ' + waCleanInline(item));
+      continue;
+    }
+
+    // Numbered list
+    if (/^\d+\.\s+/.test(line)) {
+      const m2 = line.match(/^(\d+)\.\s+(.+)$/);
+      if (m2) { out.push(m2[1] + '. ' + waCleanInline(m2[2])); continue; }
+    }
+
+    // Blockquote
+    if (/^>\s?/.test(line)) {
+      out.push('> ' + waCleanInline(line.replace(/^>\s?/, '')));
+      continue;
+    }
+
+    // Normal line — clean inline formatting
+    out.push(waCleanInline(line));
+  }
+
+  return out.join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/* ── clean inline markdown → WhatsApp inline syntax ── */
+function waCleanInline(text) {
+  // Remove any ─ divider characters
+  text = text.replace(/─+/g, '');
+
+  // **bold** or __bold__ → *bold*
+  text = text.replace(/\*\*([^*]+)\*\*/g, '*$1*');
+  text = text.replace(/__([^_]+)__/g, '*$1*');
+
+  // *italic* (single) that isn't already *bold* → _italic_
+  // Only convert *word* where it's not already WA bold
+  text = text.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g, '_$1_');
+
+  // _italic_ → _italic_ (already correct, keep)
+  // ~~strike~~ → ~strike~
+  text = text.replace(/~~([^~]+)~~/g, '~$1~');
+
+  // `code` → ```code```
+  text = text.replace(/`([^`]+)`/g, '```$1```');
+
+  // Trim extra spaces inside WA markers
+  text = text.replace(/\* ([^*]+) \*/g, '*$1*');
+  text = text.replace(/_ ([^_]+) _/g, '_$1_');
+
+  return text.trim();
+}
+
+/* ── core converter: HTML or Markdown → WhatsApp ── */
 function waConvert() {
   const inp = document.getElementById('wa-input');
   const html = inp.innerHTML;
@@ -4162,10 +4244,18 @@ function waConvert() {
   const optNumbers  = document.getElementById('wa-opt-numbers')?.checked !== false;
   const optDividers = document.getElementById('wa-opt-dividers')?.checked !== false;
 
-  // Parse DOM to WhatsApp text
-  const result = waNodeToText(inp, { optBullets, optNumbers, optDividers, depth: 0, olCounter: [0] });
-  const clean = result
-    .replace(/\n{3,}/g, '\n\n').replace(/^\n+|\n+$/g, '').trim();
+  // Get plain text to check if it's already markdown
+  const plainText = inp.innerText || inp.textContent || '';
+
+  let clean;
+  if (waIsMarkdown(plainText)) {
+    // Input is already markdown — convert directly, skip HTML parse
+    clean = waMdToWA(plainText, { optBullets, optNumbers, optDividers });
+  } else {
+    // Input is rich HTML (from editor or paste) — parse DOM
+    const result = waNodeToText(inp, { optBullets, optNumbers, optDividers, depth: 0, olCounter: [0] });
+    clean = result.replace(/\n{3,}/g, '\n\n').replace(/^\n+|\n+$/g, '').trim();
+  }
 
   document.getElementById('wa-output').value = clean;
   document.getElementById('wa-char-count').textContent = clean.length + ' chars';
@@ -4311,39 +4401,62 @@ function waRenderPreview(text) {
   const preview = document.getElementById('wa-preview');
   if (!text) { preview.innerHTML = ''; return; }
 
-  // Step 1: escape HTML entities first
-  let html = text
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;');
+  // Process line by line for accuracy
+  const lines = text.split('\n');
+  let html = '';
 
-  // Step 2: code blocks (must be before bold/italic to avoid mangling)
-  html = html.replace(/```([\s\S]*?)```/g,'<code style="font-family:var(--mono);font-size:12px;background:var(--surface3);padding:1px 4px;border-radius:3px">$1</code>');
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
 
-  // Step 3: bold — *text* with optional surrounding spaces
-  // WA bold: * must touch the word (no space after opening *, no space before closing *)
-  html = html.replace(/(?:^|(?<=\s|>))\*([^*\n]+?)\*(?=\s|$|<)/gm,'<strong>$1</strong>');
-  // fallback for remaining *text*
-  html = html.replace(/\*([^*\n]+?)\*/g,'<strong>$1</strong>');
+    // Escape HTML
+    line = line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-  // Step 4: italic — _text_
-  html = html.replace(/(?:^|(?<=\s|>))_([^_\n]+?)_(?=\s|$|<)/gm,'<em>$1</em>');
-  html = html.replace(/_([^_\n]+?)_/g,'<em>$1</em>');
+    // Blockquote: > text
+    if (/^&gt;\s?/.test(line)) {
+      const inner = line.replace(/^&gt;\s?/,'');
+      html += '<div style="border-left:3px solid var(--green);padding-left:10px;color:var(--muted);margin:1px 0">' + waInlinePreview(inner) + '</div>';
+      continue;
+    }
 
-  // Step 5: strikethrough
-  html = html.replace(/~([^~\n]+?)~/g,'<del>$1</del>');
+    // Bullet list
+    if (/^- (.+)$/.test(line)) {
+      const inner = line.replace(/^- /,'');
+      html += '<div style="padding-left:16px">• ' + waInlinePreview(inner) + '</div>';
+      continue;
+    }
 
-  // Step 6: blockquote  
-  html = html.replace(/^&gt;\s?(.*)$/gm,'<div style="border-left:3px solid var(--green);padding-left:10px;color:var(--muted);margin:2px 0">$1</div>');
+    // Numbered list
+    if (/^\d+\.\s/.test(line)) {
+      const m = line.match(/^(\d+)\.\s(.+)$/);
+      if (m) { html += '<div style="padding-left:16px">' + m[1] + '. ' + waInlinePreview(m[2]) + '</div>'; continue; }
+    }
 
-  // Step 7: lists
-  html = html.replace(/^- (.+)$/gm,'<div style="padding-left:16px">• $1</div>');
-  html = html.replace(/^(\d+)\.\s(.+)$/gm,'<div style="padding-left:16px">$1. $2</div>');
+    // Empty line → spacing
+    if (!line.trim()) { html += '<div style="height:6px"></div>'; continue; }
 
-  // Step 8: newlines → <br>
-  html = html.replace(/\n/g,'<br>');
+    // Normal line
+    html += '<div>' + waInlinePreview(line) + '</div>';
+  }
 
   preview.innerHTML = html;
+}
+
+/* ── inline WA syntax → HTML for preview ── */
+function waInlinePreview(text) {
+  // 1. code blocks first
+  text = text.replace(/```([^`]+)```/g,
+    '<code style="font-family:var(--mono);font-size:12px;background:var(--surface3);padding:1px 5px;border-radius:3px">$1</code>');
+
+  // 2. bold *text* — greedy, anchored to non-space after * and before *
+  text = text.replace(/\*([^*\n]+?)\*/g, '<strong>$1</strong>');
+
+  // 3. italic _text_
+  text = text.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
+
+  // 4. strikethrough ~text~
+  text = text.replace(/~([^~\n]+?)~/g, '<del>$1</del>');
+
+  return text;
 }
 
 /* ── tabs ── */
