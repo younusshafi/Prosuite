@@ -3387,13 +3387,14 @@ function mdParse(src) {
       continue;
     }
 
-    // table (must have separator on next line)
-    if (/^\|.+\|$/.test(line) && i+1 < lines.length && /^\|[\s\-|:]+\|$/.test(lines[i+1])) {
-      const headers = line.slice(1,-1).split('|').map(c=>c.trim());
+    // table (must have separator on next line) - tolerates rows missing the trailing pipe
+    if (/^\|/.test(line) && i+1 < lines.length && /^\|[\s\-|:]+\|?\s*$/.test(lines[i+1])) {
+      const mdCells = l => l.replace(/^\|/,'').replace(/\|\s*$/,'').split('|').map(c=>c.trim());
+      const headers = mdCells(line);
       i += 2; // skip header + separator
       const rows = [];
-      while (i < lines.length && /^\|.+\|$/.test(lines[i])) {
-        rows.push(lines[i].slice(1,-1).split('|').map(c=>c.trim())); i++;
+      while (i < lines.length && /^\|/.test(lines[i]) && lines[i].trim() !== '|') {
+        rows.push(mdCells(lines[i])); i++;
       }
       blocks.push({type:'table', headers, rows});
       continue;
@@ -3425,11 +3426,12 @@ function mdParse(src) {
       const l = lines[i];
       // stop at blank or block-level starters
       if (!l.trim()) break;
-      if (/^(#{1,6}\s|```|>\s?|[\*\-]\s|\d+\.\s|\|.*\|$|(\-{3,}|\*{3,}|_{3,})\s*$)/.test(l)) break;
+      if (/^(#{1,6}\s|```|>\s?|[\*\-]\s|\d+\.\s|\||(\-{3,}|\*{3,}|_{3,})\s*$)/.test(l)) break;
       para += (para ? ' ' : '') + l.trim();
       i++;
     }
-    if (para) blocks.push({type:'para', text:para});
+    if (para) { blocks.push({type:'para', text:para}); }
+    else { blocks.push({type:'para', text: lines[i]}); i++; } // safety valve: never stall on an unconsumed line
   }
   return blocks;
 }
